@@ -3,163 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Handwritten Notes Generator</title>
+  <title>Handwritten Notes Converter</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&family=Reenie+Beanie&family=Schoolbell&family=Indie+Flower&family=Kalam&family=Architects+Daughter&family=Dancing+Script&family=Pacifico&family=Shadows+Into+Light&family=Caveat&family=Homemade+Apple&family=League+Script&family=Cedarville+Cursive&family=Just+Another+Hand&family=Allura&family=Arizonia&family=Balqis&family=Berkshire+Swash&family=Great+Vibes&display=swap" rel="stylesheet">
+  <!-- Handwritten Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Reenie+Beanie&family=Schoolbell&family=Indie+Flower&family=Kalam&family=Architects+Daughter&family=Dancing+Script&family=Pacifico&family=Shadows+Into+Light&family=Caveat&family=Homemade+Apple&family=League+Script&family=Cedarville+Cursive&family=Just+Another+Hand&family=Allura&family=Arizonia&family=Balqis&family=Berkshire+Swash&family=Great+Vibes&display=swap" rel="stylesheet">
+
+  <!-- MathJax Script -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
     body {
-      background: #fff;
       margin: 0;
       padding: 0;
-      font-family: 'Kalam', sans-serif;
+      background-color: #fefefe;
+      font-family: 'Kalam', cursive;
     }
 
     .container {
-      width: 210mm;
-      min-height: 297mm;
+      max-width: 900px;
+      margin: 40px auto;
       padding: 40px;
-      margin: auto;
-      background: white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      box-sizing: border-box;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label, select {
+      font-size: 18px;
+    }
+
+    #fontInfo {
+      margin-top: 10px;
+      font-size: 15px;
+      font-style: italic;
+      color: #555;
     }
 
     textarea {
       width: 100%;
       height: 300px;
-      padding: 10px;
-      font-size: 18px;
-      resize: vertical;
-      box-sizing: border-box;
-    }
-
-    #output {
       margin-top: 20px;
+      padding: 15px;
+      font-size: 20px;
+      line-height: 1.8;
+      border: 1px solid #ccc;
+      resize: vertical;
+      background-color: #fff;
+    }
+
+    #preview {
+      margin-top: 30px;
+      padding: 30px;
+      min-height: 400px;
+      font-size: 20px;
+      line-height: 1.8;
+      border: 1px solid #ccc;
       white-space: pre-wrap;
-      font-size: 18px;
-      line-height: 1.6;
-    }
-
-    .controls {
-      margin-bottom: 20px;
-    }
-
-    select {
-      padding: 8px;
-      font-size: 16px;
+      word-wrap: break-word;
     }
 
     button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
       cursor: pointer;
+      margin-top: 20px;
     }
 
-    .desc {
-      margin-top: 10px;
-      font-style: italic;
-      font-size: 14px;
-      color: #555;
+    button:hover {
+      background-color: #388E3C;
+    }
+
+    .font-select {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="notesArea">
-    <div class="controls">
-      <label for="fontSelect"><strong>Select Handwriting Style:</strong></label>
-      <select id="fontSelect" onchange="updateFont()">
-        <option value="Coming Soon">Coming Soon</option>
-        <option value="Reenie Beanie">Reenie Beanie</option>
-        <option value="Schoolbell">Schoolbell</option>
-        <option value="Indie Flower">Indie Flower</option>
-        <option value="Kalam">Kalam</option>
-        <option value="Architects Daughter">Architects Daughter</option>
-        <option value="Dancing Script">Dancing Script</option>
-        <option value="Pacifico">Pacifico</option>
-        <option value="Shadows Into Light">Shadows Into Light</option>
-        <option value="Caveat">Caveat</option>
-        <option value="Homemade Apple">Homemade Apple</option>
-        <option value="League Script">League Script</option>
-        <option value="Cedarville Cursive">Cedarville Cursive</option>
-        <option value="Just Another Hand">Just Another Hand</option>
-        <option value="Allura">Allura</option>
-        <option value="Arizonia">Arizonia</option>
-        <option value="Balqis">Balqis</option>
-        <option value="Berkshire Swash">Berkshire Swash</option>
-        <option value="Great Vibes">Great Vibes</option>
-      </select>
-      <div class="desc" id="fontDesc">Font description will appear here.</div>
-    </div>
 
-    <textarea id="textInput" placeholder="Type your notes here..." oninput="updateOutput()"></textarea>
-    <div id="output"></div>
-    <button onclick="downloadPDF()">Download as PDF</button>
-  </div>
+<div class="container">
+  <h1>Text to Handwritten Notes</h1>
 
-  <!-- JS Script -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script>
-    const fontDescriptions = {
-      "Coming Soon": "A playful and neat handwritten font.",
-      "Reenie Beanie": "Slightly casual and uneven but has a handwritten flow.",
-      "Schoolbell": "Mimics student handwriting with a little bounce.",
-      "Indie Flower": "A whimsical and playful handwritten feel.",
-      "Kalam": "Very close to real pen handwriting, perfect for notes.",
-      "Architects Daughter": "Clean and precise handwritten look.",
-      "Dancing Script": "Lively script where the letters bounce.",
-      "Pacifico": "Brush script inspired by 1950s American surf culture.",
-      "Shadows Into Light": "Warm, charming handwritten style.",
-      "Caveat": "Gentle and approachable handwritten aesthetic.",
-      "Homemade Apple": "Evokes a sense of nostalgia and charm.",
-      "League Script": "Natural and organic handwritten feel.",
-      "Cedarville Cursive": "Classic and elegant cursive handwriting.",
-      "Just Another Hand": "Simple and casual hand-drawn style.",
-      "Allura": "Elegant and flowing script font.",
-      "Arizonia": "Stylish cursive with personality.",
-      "Balqis": "Feminine, romantic script style.",
-      "Berkshire Swash": "Flamboyant yet gentle handwritten font.",
-      "Great Vibes": "Smooth cursive handwriting with flair."
-    };
+  <label for="fontSelect">Choose a Handwriting Font:</label>
+  <select id="fontSelect" class="font-select" onchange="updateFont()">
+    <option value="Kalam">Kalam</option>
+    <option value="Reenie Beanie">Reenie Beanie</option>
+    <option value="Schoolbell">Schoolbell</option>
+    <option value="Indie Flower">Indie Flower</option>
+    <option value="Architects Daughter">Architects Daughter</option>
+    <option value="Dancing Script">Dancing Script</option>
+    <option value="Pacifico">Pacifico</option>
+    <option value="Shadows Into Light">Shadows Into Light</option>
+    <option value="Caveat">Caveat</option>
+    <option value="Homemade Apple">Homemade Apple</option>
+    <option value="League Script">League Script</option>
+    <option value="Cedarville Cursive">Cedarville Cursive</option>
+    <option value="Just Another Hand">Just Another Hand</option>
+    <option value="Allura">Allura</option>
+    <option value="Arizonia">Arizonia</option>
+    <option value="Balqis">Balqis</option>
+    <option value="Berkshire Swash">Berkshire Swash</option>
+    <option value="Great Vibes">Great Vibes</option>
+  </select>
+  <div id="fontInfo"></div>
 
-    function updateOutput() {
-      const text = document.getElementById("textInput").value;
-      const output = document.getElementById("output");
-      output.textContent = text;
-    }
+  <textarea id="noteInput" placeholder="Paste your text or math expressions here (use LaTeX format)..."></textarea>
 
-    function updateFont() {
-      const selectedFont = document.getElementById("fontSelect").value;
-      document.getElementById("output").style.fontFamily = `'${selectedFont}', cursive`;
-      document.getElementById("fontDesc").textContent = fontDescriptions[selectedFont] || "";
-    }
+  <button onclick="renderPreview()">Render Handwritten Note</button>
+  <button onclick="downloadPDF()">Download as PDF</button>
 
-    function downloadPDF() {
-      const element = document.getElementById("output");
-      const opt = {
-        margin: 0.5,
-        filename: 'Handwritten_Notes.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          scrollY: 0
-        },
-        jsPDF: {
-          unit: 'in',
-          format: 'a4',
-          orientation: 'portrait'
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-      html2pdf().from(element).set(opt).save();
-    }
+  <div id="preview"></div>
+</div>
 
-    // Initialize defaults
-    updateOutput();
+<!-- html2pdf Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  const fontDescriptions = {
+    "Kalam": "Very close to real pen handwriting, especially for notes.",
+    "Reenie Beanie": "Slightly scribbled, casual handwritten flow.",
+    "Schoolbell": "Mimics student handwriting with a playful bounce.",
+    "Indie Flower": "Smooth, rounded, and natural handwritten look.",
+    "Architects Daughter": "Clean and precise, but still handwritten.",
+    "Dancing Script": "A lively script where letters bounce slightly.",
+    "Pacifico": "Brush script inspired by 1950s American surf culture.",
+    "Shadows Into Light": "A font that evokes warmth and charm.",
+    "Caveat": "Gentle and approachable handwriting style.",
+    "Homemade Apple": "Nostalgic and charming handwritten style.",
+    "League Script": "Natural and organic handwriting feel.",
+    "Cedarville Cursive": "Classic, elegant cursive handwriting.",
+    "Just Another Hand": "Thin, quirky, handwritten script.",
+    "Allura": "Simple, very smooth cursive handwriting.",
+    "Arizonia": "Stylish and flowing script handwriting.",
+    "Balqis": "Elegant and graceful script handwriting.",
+    "Berkshire Swash": "Fancy and vintage cursive look.",
+    "Great Vibes": "Flowy cursive with formal touch."
+  };
+
+  function updateFont() {
+    const font = document.getElementById('fontSelect').value;
+    const preview = document.getElementById('preview');
+    preview.style.fontFamily = `'${font}', cursive`;
+
+    const info = fontDescriptions[font] || "";
+    document.getElementById("fontInfo").innerText = info;
+  }
+
+  function renderPreview() {
+    const text = document.getElementById('noteInput').value;
+    const preview = document.getElementById('preview');
+
+    // Allow MathJax rendering
+    preview.innerHTML = text;
     updateFont();
-  </script>
+
+    if (window.MathJax) {
+      MathJax.typesetPromise([preview]);
+    }
+  }
+
+  function downloadPDF() {
+    const preview = document.getElementById("preview");
+    const opt = {
+      margin: 0.5,
+      filename: 'Handwritten_Notes.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    html2pdf().set(opt).from(preview).save();
+  }
+
+  // Set initial font
+  window.onload = updateFont;
+</script>
+
 </body>
 </html>
